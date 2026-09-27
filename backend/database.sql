@@ -24,7 +24,7 @@ CREATE TABLE items (
     type ENUM('LOST', 'FOUND') NOT NULL,
     location VARCHAR(200) NOT NULL,
     date DATE NOT NULL,
-    image VARCHAR(255),
+    image VARCHAR(500),
     status ENUM('OPEN', 'CLAIMED', 'RETURNED') DEFAULT 'OPEN',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,

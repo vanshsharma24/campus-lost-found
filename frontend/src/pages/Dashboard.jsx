@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../utils/api';
+import api, { getImageUrl } from '../utils/api';
 import ItemCard from '../components/ItemCard';
 import toast from 'react-hot-toast';
 
@@ -97,7 +97,7 @@ const Dashboard = () => {
                             <div key={claim.id} className="bg-white p-4 rounded-lg shadow flex gap-4">
                                 {claim.item_image && (
                                     <img
-                                        src={`http://localhost:5000/uploads/${claim.item_image}`}
+                                        src={getImageUrl(claim.item_image)}
                                         alt={claim.item_title}
                                         className="w-24 h-24 object-cover rounded"
                                     />
@@ -134,7 +134,7 @@ const Dashboard = () => {
                                 <div className="flex gap-4">
                                     {claim.item_image && (
                                         <img
-                                            src={`http://localhost:5000/uploads/${claim.item_image}`}
+                                            src={getImageUrl(claim.item_image)}
                                             alt={claim.item_title}
                                             className="w-24 h-24 object-cover rounded"
                                         />

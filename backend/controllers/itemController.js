@@ -3,7 +3,7 @@ const db = require('../config/db');
 const createItem = async (req, res) => {
     try {
         const { title, description, category_id, type, location, date } = req.body;
-        const image = req.file ? req.file.filename : null;
+        const image = req.file ? req.file.path : null;
 
         if (!title || !description || !type || !location || !date) {
             return res.status(400).json({ message: 'Please fill all required fields' });
@@ -97,7 +97,7 @@ const updateItem = async (req, res) => {
             return res.status(403).json({ message: 'Not authorized to edit this item' });
         }
 
-        const image = req.file ? req.file.filename : items[0].image;
+        const image = req.file ? req.file.path : items[0].image;
 
         await db.query(
             'UPDATE items SET title = ?, description = ?, category_id = ?, location = ?, date = ?, image = ?, status = ? WHERE id = ?',

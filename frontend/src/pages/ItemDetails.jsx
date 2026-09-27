@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import api from '../utils/api';
+import api, { getImageUrl } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
@@ -69,9 +69,7 @@ const ItemDetails = () => {
     if (loading) return <div className="text-center py-20">Loading...</div>;
     if (!item) return <div className="text-center py-20">Item not found</div>;
 
-    const imageUrl = item.image
-        ? `http://localhost:5000/uploads/${item.image}`
-        : 'https://via.placeholder.com/600x400?text=No+Image';
+    const imageUrl = getImageUrl(item.image) || 'https://via.placeholder.com/600x400?text=No+Image';
 
     const isOwner = user && user.id === item.user_id;
 
