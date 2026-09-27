@@ -14,7 +14,7 @@ import Profile from './pages/Profile';
 
 const App = () => {
     return (
-        <div className="min-h-screen flex flex-col">
+        <div className="min-h-screen flex flex-col bg-slate-50">
             <Navbar />
             <main className="flex-1">
                 <Routes>

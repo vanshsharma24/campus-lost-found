@@ -55,7 +55,6 @@ const EditItem = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-
         try {
             const data = new FormData();
             Object.keys(formData).forEach((key) => data.append(key, formData[key]));
@@ -74,36 +73,40 @@ const EditItem = () => {
     };
 
     return (
-        <div className="max-w-2xl mx-auto px-4 py-8">
-            <div className="bg-white p-6 rounded-lg shadow-md">
-                <h1 className="text-2xl font-bold text-gray-800 mb-6">Edit Item</h1>
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10 animate-fade-in">
+            <div className="mb-8">
+                <h1 className="font-display text-4xl font-bold text-slate-900 mb-2">Edit Item</h1>
+                <p className="text-slate-600">Update the details of your posted item</p>
+            </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <label className="block text-gray-700 mb-1">Title</label>
-                        <input
-                            type="text"
-                            name="title"
-                            value={formData.title}
-                            onChange={handleChange}
-                            required
-                            className="input-field"
-                        />
-                    </div>
+            <form onSubmit={handleSubmit} className="card p-8 space-y-6">
+                <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Title</label>
+                    <input
+                        type="text"
+                        name="title"
+                        value={formData.title}
+                        onChange={handleChange}
+                        required
+                        className="input-field"
+                    />
+                </div>
 
-                    <div>
-                        <label className="block text-gray-700 mb-1">Description</label>
-                        <textarea
-                            name="description"
-                            value={formData.description}
-                            onChange={handleChange}
-                            required
-                            className="input-field h-24"
-                        />
-                    </div>
+                <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Description</label>
+                    <textarea
+                        name="description"
+                        value={formData.description}
+                        onChange={handleChange}
+                        required
+                        rows={4}
+                        className="input-field resize-none"
+                    />
+                </div>
 
+                <div className="grid md:grid-cols-2 gap-5">
                     <div>
-                        <label className="block text-gray-700 mb-1">Category</label>
+                        <label className="block text-sm font-semibold text-slate-700 mb-1.5">Category</label>
                         <select
                             name="category_id"
                             value={formData.category_id}
@@ -118,19 +121,7 @@ const EditItem = () => {
                     </div>
 
                     <div>
-                        <label className="block text-gray-700 mb-1">Location</label>
-                        <input
-                            type="text"
-                            name="location"
-                            value={formData.location}
-                            onChange={handleChange}
-                            required
-                            className="input-field"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-gray-700 mb-1">Date</label>
+                        <label className="block text-sm font-semibold text-slate-700 mb-1.5">Date</label>
                         <input
                             type="date"
                             name="date"
@@ -140,49 +131,63 @@ const EditItem = () => {
                             className="input-field"
                         />
                     </div>
+                </div>
 
-                    <div>
-                        <label className="block text-gray-700 mb-1">Status</label>
-                        <select
-                            name="status"
-                            value={formData.status}
-                            onChange={handleChange}
-                            className="input-field"
-                        >
-                            <option value="OPEN">Open</option>
-                            <option value="CLAIMED">Claimed</option>
-                            <option value="RETURNED">Returned</option>
-                        </select>
-                    </div>
+                <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Location</label>
+                    <input
+                        type="text"
+                        name="location"
+                        value={formData.location}
+                        onChange={handleChange}
+                        required
+                        className="input-field"
+                    />
+                </div>
 
-                    <div>
-                        <label className="block text-gray-700 mb-1">Change Image (optional)</label>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => setImage(e.target.files[0])}
-                            className="input-field"
-                        />
-                    </div>
+                <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Status</label>
+                    <select
+                        name="status"
+                        value={formData.status}
+                        onChange={handleChange}
+                        className="input-field"
+                    >
+                        <option value="OPEN">Open</option>
+                        <option value="CLAIMED">Claimed</option>
+                        <option value="RETURNED">Returned</option>
+                    </select>
+                </div>
 
-                    <div className="flex gap-3">
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded font-medium disabled:opacity-50"
-                        >
-                            {loading ? 'Updating...' : 'Update Item'}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => navigate(`/items/${id}`)}
-                            className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2.5 rounded"
-                        >
-                            Cancel
-                        </button>
-                    </div>
-                </form>
-            </div>
+                <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+                        Change Image <span className="text-slate-400 font-normal">(optional)</span>
+                    </label>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setImage(e.target.files[0])}
+                        className="input-field"
+                    />
+                </div>
+
+                <div className="flex gap-3 pt-4 border-t border-slate-100">
+                    <button
+                        type="button"
+                        onClick={() => navigate(`/items/${id}`)}
+                        className="btn-secondary flex-1"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="btn-primary flex-1 py-3 disabled:opacity-60"
+                    >
+                        {loading ? 'Updating...' : 'Update Item'}
+                    </button>
+                </div>
+            </form>
         </div>
     );
 };

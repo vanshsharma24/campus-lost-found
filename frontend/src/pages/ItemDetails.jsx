@@ -12,6 +12,7 @@ const ItemDetails = () => {
     const [loading, setLoading] = useState(true);
     const [showClaimForm, setShowClaimForm] = useState(false);
     const [claimDesc, setClaimDesc] = useState('');
+    const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
         loadItem();
@@ -29,7 +30,6 @@ const ItemDetails = () => {
 
     const handleDelete = async () => {
         if (!window.confirm('Are you sure you want to delete this item?')) return;
-
         try {
             await api.delete(`/items/${id}`);
             toast.success('Item deleted');
@@ -55,7 +55,7 @@ const ItemDetails = () => {
             toast.error('Please provide claim details');
             return;
         }
-
+        setSubmitting(true);
         try {
             await api.post('/claims', { item_id: id, description: claimDesc });
             toast.success('Claim submitted');
@@ -64,136 +64,195 @@ const ItemDetails = () => {
         } catch (err) {
             toast.error(err.response?.data?.message || 'Failed to submit claim');
         }
+        setSubmitting(false);
     };
 
-    if (loading) return <div className="text-center py-20">Loading...</div>;
-    if (!item) return <div className="text-center py-20">Item not found</div>;
+    if (loading) {
+        return (
+            <div className="max-w-5xl mx-auto px-4 py-10">
+                <div className="card overflow-hidden animate-pulse">
+                    <div className="grid md:grid-cols-2">
+                        <div className="aspect-square bg-slate-200"></div>
+                        <div className="p-8 space-y-4">
+                            <div className="h-8 bg-slate-200 rounded w-3/4"></div>
+                            <div className="h-4 bg-slate-200 rounded"></div>
+                            <div className="h-4 bg-slate-200 rounded w-5/6"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
-    const imageUrl = getImageUrl(item.image) || 'https://via.placeholder.com/600x400?text=No+Image';
+    if (!item) {
+        return (
+            <div className="max-w-md mx-auto py-20 text-center">
+                <h2 className="text-2xl font-bold text-slate-900 mb-2">Item not found</h2>
+                <p className="text-slate-600 mb-6">This item may have been removed.</p>
+                <Link to="/items" className="btn-primary">Browse Items</Link>
+            </div>
+        );
+    }
 
+    const imageUrl = getImageUrl(item.image) || 'https://via.placeholder.com/600x600?text=No+Image';
     const isOwner = user && user.id === item.user_id;
 
+    const typeStyles = item.type === 'LOST'
+        ? 'bg-rose-100 text-rose-700 border border-rose-200'
+        : 'bg-emerald-100 text-emerald-700 border border-emerald-200';
+
+    const statusStyles = {
+        OPEN: 'bg-amber-100 text-amber-700 border border-amber-200',
+        CLAIMED: 'bg-blue-100 text-blue-700 border border-blue-200',
+        RETURNED: 'bg-slate-100 text-slate-600 border border-slate-200'
+    };
+
     return (
-        <div className="max-w-4xl mx-auto px-4 py-8">
-            <Link to="/items" className="text-blue-600 hover:underline mb-4 inline-block">
-                ← Back to Items
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+            <Link to="/items" className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-brand-600 mb-6 transition-colors">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to Items
             </Link>
 
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                <img src={imageUrl} alt={item.title} className="w-full h-80 object-cover" />
-
-                <div className="p-6">
-                    <div className="flex justify-between items-start mb-4">
-                        <h1 className="text-3xl font-bold text-gray-800">{item.title}</h1>
-                        <div className="flex gap-2">
-                            <span className={`px-3 py-1 rounded text-sm font-medium ${
-                                item.type === 'LOST' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
-                            }`}>
-                                {item.type}
-                            </span>
-                            <span className={`px-3 py-1 rounded text-sm font-medium ${
-                                item.status === 'OPEN' ? 'bg-yellow-100 text-yellow-700' :
-                                item.status === 'CLAIMED' ? 'bg-blue-100 text-blue-700' :
-                                'bg-gray-200 text-gray-700'
-                            }`}>
-                                {item.status}
-                            </span>
+            <div className="card overflow-hidden">
+                <div className="grid md:grid-cols-2 gap-0">
+                    <div className="relative aspect-square md:aspect-auto bg-slate-100">
+                        <img src={imageUrl} alt={item.title} className="w-full h-full object-cover" />
+                        <div className="absolute top-4 left-4 flex gap-2">
+                            <span className={`badge ${typeStyles}`}>{item.type}</span>
+                            <span className={`badge ${statusStyles[item.status]}`}>{item.status}</span>
                         </div>
                     </div>
 
-                    <p className="text-gray-700 mb-6">{item.description}</p>
+                    <div className="p-6 md:p-8 flex flex-col">
+                        <h1 className="font-display text-3xl font-bold text-slate-900 mb-3">{item.title}</h1>
+                        <p className="text-slate-600 leading-relaxed mb-6">{item.description}</p>
 
-                    <div className="grid md:grid-cols-2 gap-4 mb-6 border-t pt-4">
-                        <div>
-                            <p className="text-sm text-gray-500">Category</p>
-                            <p className="font-medium">{item.category_name || 'Uncategorized'}</p>
+                        <div className="grid grid-cols-2 gap-4 mb-6 py-6 border-y border-slate-100">
+                            <div>
+                                <div className="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1">Category</div>
+                                <div className="text-slate-900 font-medium">{item.category_name || 'Uncategorized'}</div>
+                            </div>
+                            <div>
+                                <div className="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1">Date</div>
+                                <div className="text-slate-900 font-medium">
+                                    {new Date(item.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                                </div>
+                            </div>
+                            <div className="col-span-2">
+                                <div className="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1">Location</div>
+                                <div className="text-slate-900 font-medium flex items-center gap-1.5">
+                                    <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    {item.location}
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <p className="text-sm text-gray-500">Location</p>
-                            <p className="font-medium">{item.location}</p>
-                        </div>
-                        <div>
-                            <p className="text-sm text-gray-500">Date</p>
-                            <p className="font-medium">{new Date(item.date).toLocaleDateString()}</p>
-                        </div>
-                        <div>
-                            <p className="text-sm text-gray-500">Posted By</p>
-                            <p className="font-medium">{item.user_name}</p>
-                        </div>
-                    </div>
 
-                    {user && !isOwner && (
-                        <div className="border-t pt-4 mb-4">
-                            <h3 className="font-semibold text-gray-800 mb-2">Contact Information</h3>
-                            <p className="text-gray-600">Email: {item.user_email}</p>
-                            {item.user_phone && <p className="text-gray-600">Phone: {item.user_phone}</p>}
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="w-10 h-10 bg-gradient-to-br from-brand-500 to-brand-700 rounded-full flex items-center justify-center text-white font-semibold">
+                                {item.user_name?.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                                <div className="text-sm font-semibold text-slate-900">{item.user_name}</div>
+                                <div className="text-xs text-slate-500">Posted by</div>
+                            </div>
                         </div>
-                    )}
 
-                    <div className="flex flex-wrap gap-3 border-t pt-4">
-                        {isOwner ? (
-                            <>
-                                <button
-                                    onClick={() => navigate(`/edit/${id}`)}
-                                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-                                >
-                                    Edit
-                                </button>
-                                {item.status !== 'RETURNED' && (
-                                    <button
-                                        onClick={handleMarkReturned}
-                                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
-                                    >
-                                        Mark as Returned
+                        {user && !isOwner && (
+                            <div className="bg-slate-50 rounded-xl p-4 mb-6">
+                                <h3 className="text-sm font-semibold text-slate-900 mb-2">Contact Information</h3>
+                                <div className="space-y-1.5 text-sm">
+                                    <div className="flex items-center gap-2 text-slate-700">
+                                        <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                        </svg>
+                                        <a href={`mailto:${item.user_email}`} className="hover:text-brand-600">{item.user_email}</a>
+                                    </div>
+                                    {item.user_phone && (
+                                        <div className="flex items-center gap-2 text-slate-700">
+                                            <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                            </svg>
+                                            <a href={`tel:${item.user_phone}`} className="hover:text-brand-600">{item.user_phone}</a>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="mt-auto flex flex-wrap gap-2">
+                            {isOwner ? (
+                                <>
+                                    <button onClick={() => navigate(`/edit/${id}`)} className="btn-secondary flex-1">
+                                        Edit
                                     </button>
-                                )}
-                                <button
-                                    onClick={handleDelete}
-                                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
-                                >
-                                    Delete
-                                </button>
-                            </>
-                        ) : (
-                            user && item.status === 'OPEN' && (
-                                <button
-                                    onClick={() => setShowClaimForm(!showClaimForm)}
-                                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-                                >
-                                    Submit Claim
-                                </button>
-                            )
-                        )}
-                        {!user && (
-                            <Link to="/login" className="text-blue-600 hover:underline">
-                                Login to submit a claim
-                            </Link>
-                        )}
+                                    {item.status !== 'RETURNED' && (
+                                        <button onClick={handleMarkReturned} className="flex-1 inline-flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm transition-all">
+                                            Mark as Returned
+                                        </button>
+                                    )}
+                                    <button onClick={handleDelete} className="btn-danger">
+                                        Delete
+                                    </button>
+                                </>
+                            ) : (
+                                user && item.status === 'OPEN' && (
+                                    <button
+                                        onClick={() => setShowClaimForm(!showClaimForm)}
+                                        className="btn-primary w-full py-3"
+                                    >
+                                        {showClaimForm ? 'Cancel' : 'Submit a Claim'}
+                                    </button>
+                                )
+                            )}
+                            {!user && (
+                                <Link to="/login" className="btn-primary w-full py-3">
+                                    Sign in to submit a claim
+                                </Link>
+                            )}
+                        </div>
                     </div>
+                </div>
 
-                    {showClaimForm && (
-                        <form onSubmit={handleClaimSubmit} className="mt-4 bg-gray-50 p-4 rounded">
-                            <h4 className="font-semibold mb-2">Provide details to verify ownership</h4>
+                {showClaimForm && (
+                    <div className="border-t border-slate-100 p-6 md:p-8 bg-slate-50">
+                        <form onSubmit={handleClaimSubmit}>
+                            <h4 className="font-semibold text-slate-900 mb-2">Verify Ownership</h4>
+                            <p className="text-sm text-slate-600 mb-4">
+                                Provide unique details that only the real owner would know — brand, distinctive features, contents, or when you lost it.
+                            </p>
                             <textarea
                                 value={claimDesc}
                                 onChange={(e) => setClaimDesc(e.target.value)}
-                                placeholder="Describe unique features, when you lost it, or any proof of ownership..."
-                                className="input-field h-24"
+                                placeholder="e.g. Brown leather wallet, has my student ID with roll number 2023CS15, around ₹500 cash inside..."
+                                className="input-field resize-none"
+                                rows={4}
                                 required
                             />
-                            <div className="flex gap-2 mt-3">
-                                <button type="submit" className="btn-primary">Submit</button>
+                            <div className="flex gap-2 mt-4">
                                 <button
                                     type="button"
                                     onClick={() => setShowClaimForm(false)}
-                                    className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded"
+                                    className="btn-secondary"
                                 >
                                     Cancel
                                 </button>
+                                <button
+                                    type="submit"
+                                    disabled={submitting}
+                                    className="btn-primary flex-1 disabled:opacity-60"
+                                >
+                                    {submitting ? 'Submitting...' : 'Submit Claim'}
+                                </button>
                             </div>
                         </form>
-                    )}
-                </div>
+                    </div>
+                )}
             </div>
         </div>
     );

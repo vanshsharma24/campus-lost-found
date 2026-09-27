@@ -7,6 +7,7 @@ const Profile = () => {
     const { user, updateUser } = useAuth();
     const [formData, setFormData] = useState({ name: '', phone: '' });
     const [loading, setLoading] = useState(false);
+    const [joinDate, setJoinDate] = useState(null);
 
     useEffect(() => {
         loadProfile();
@@ -19,6 +20,7 @@ const Profile = () => {
                 name: res.data.name,
                 phone: res.data.phone || ''
             });
+            setJoinDate(res.data.created_at);
         } catch (err) {
             console.log(err);
         }
@@ -42,13 +44,31 @@ const Profile = () => {
     };
 
     return (
-        <div className="max-w-2xl mx-auto px-4 py-8">
-            <div className="bg-white p-6 rounded-lg shadow-md">
-                <h1 className="text-2xl font-bold text-gray-800 mb-6">My Profile</h1>
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10 animate-fade-in">
+            <div className="mb-8">
+                <h1 className="font-display text-4xl font-bold text-slate-900 mb-2">My Profile</h1>
+                <p className="text-slate-600">Manage your personal information</p>
+            </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="card p-8 mb-6">
+                <div className="flex items-center gap-4 pb-6 mb-6 border-b border-slate-100">
+                    <div className="w-20 h-20 bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-md">
+                        {user?.name?.charAt(0).toUpperCase()}
+                    </div>
                     <div>
-                        <label className="block text-gray-700 mb-1">Name</label>
+                        <h2 className="font-display text-2xl font-bold text-slate-900">{user?.name}</h2>
+                        <p className="text-slate-500 text-sm">{user?.email}</p>
+                        {joinDate && (
+                            <p className="text-slate-400 text-xs mt-1">
+                                Joined {new Date(joinDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}
+                            </p>
+                        )}
+                    </div>
+                </div>
+
+                <form onSubmit={handleSubmit} className="space-y-5">
+                    <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-1.5">Full Name</label>
                         <input
                             type="text"
                             name="name"
@@ -60,33 +80,37 @@ const Profile = () => {
                     </div>
 
                     <div>
-                        <label className="block text-gray-700 mb-1">Email</label>
+                        <label className="block text-sm font-semibold text-slate-700 mb-1.5">Email Address</label>
                         <input
                             type="email"
                             value={user?.email || ''}
                             disabled
-                            className="input-field bg-gray-100"
+                            className="input-field bg-slate-50 text-slate-500 cursor-not-allowed"
                         />
+                        <p className="text-xs text-slate-500 mt-1.5">Email cannot be changed</p>
                     </div>
 
                     <div>
-                        <label className="block text-gray-700 mb-1">Phone</label>
+                        <label className="block text-sm font-semibold text-slate-700 mb-1.5">Phone Number</label>
                         <input
                             type="tel"
                             name="phone"
                             value={formData.phone}
                             onChange={handleChange}
                             className="input-field"
+                            placeholder="10-digit mobile number"
                         />
                     </div>
 
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded font-medium disabled:opacity-50"
-                    >
-                        {loading ? 'Saving...' : 'Update Profile'}
-                    </button>
+                    <div className="pt-4 border-t border-slate-100">
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="btn-primary disabled:opacity-60 disabled:cursor-not-allowed"
+                        >
+                            {loading ? 'Saving...' : 'Save Changes'}
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
