@@ -10,9 +10,12 @@ const categoryRoutes = require('./routes/categoryRoutes');
 
 const app = express();
 
-const allowedOrigins = process.env.FRONTEND_URL
-    ? process.env.FRONTEND_URL.split(',').map(o => o.trim())
-    : ['http://localhost:3000'];
+const allowedOrigins = [
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'http://127.0.0.1:3000',
+    ...(process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(',').map(o => o.trim()) : [])
+];
 
 app.use(cors({
     origin: (origin, cb) => {
