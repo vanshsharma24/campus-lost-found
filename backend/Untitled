@@ -1,8 +1,0 @@
-cat > .env <<EOF
-DB_HOST=mysql-3ce7b337-vanshsharmaynr006-57bc.c.aivencloud.com
-DB_PORT=19119
-DB_USER=avnadmin
-DB_PASSWORD=<Aiven password>
-DB_NAME=defaultdb
-DB_SSL=true
-EOF
