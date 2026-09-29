@@ -35,7 +35,7 @@ Built with modern technologies and deployed on production-grade cloud infrastruc
 - **Item Status Tracking** — Full lifecycle: `OPEN → CLAIMED → RETURNED`
 - **Ownership Protection** — Backend enforces user permissions on every mutation
 - **Mobile Responsive** — Fully optimized for phones, tablets, and desktops
-- **Modern UI** — Clean interface with Tailwind CSS, smooth animations, and thoughtful UX
+- **Modern UI** — Clean design with Tailwind CSS and smooth animations
 
 ---
 
@@ -49,7 +49,7 @@ Built with modern technologies and deployed on production-grade cloud infrastruc
 | React Router v6 | Client-side routing |
 | Tailwind CSS | Utility-first styling framework |
 | Axios | Promise-based HTTP client |
-| React Hot Toast | Elegant toast notifications |
+| React Hot Toast | Toast notifications |
 
 ### Backend
 | Technology | Purpose |
