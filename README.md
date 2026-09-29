@@ -366,6 +366,6 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 **If this project helped you, please give it a star**
 
-Built with care as a full-stack final year project
+Built with care as a full-stack final year project.
 
 </div>
